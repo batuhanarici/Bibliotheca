@@ -54,6 +54,25 @@ export function setupIpcHandlers() {
     insertMany(pdfFiles);
   });
 
+  ipcMain.handle('db:addPdfs', async (_, filePaths: string[]) => {
+    const insertMany = db.transaction((paths: string[]) => {
+      const stmt = db.prepare(`
+        INSERT OR IGNORE INTO books (title, file_path, added_at)
+        VALUES (?, ?, ?)
+      `);
+      
+      for (const filePath of paths) {
+        if (filePath.toLowerCase().endsWith('.pdf')) {
+          const title = path.basename(filePath, '.pdf');
+          const addedAt = new Date().toISOString();
+          stmt.run(title, filePath, addedAt);
+        }
+      }
+    });
+
+    insertMany(filePaths);
+  });
+
   // Tüm kitapları getirme
   ipcMain.handle('db:getAllBooks', async () => {
     const stmt = db.prepare('SELECT * FROM books ORDER BY added_at DESC');

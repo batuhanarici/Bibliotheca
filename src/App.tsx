@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import { useEffect, useState, useCallback } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import { BookList } from './components/BookList';
 import { PdfViewer } from './components/PdfViewer';
 import { Sidebar, FilterType } from './components/Sidebar';
@@ -35,6 +35,9 @@ export default function App() {
   const [isFtsModalOpen, setIsFtsModalOpen] = useState(false);
   const [isStatsModalOpen, setIsStatsModalOpen] = useState(false);
   const [initialPdfPage, setInitialPdfPage] = useState<number | undefined>(undefined);
+
+  const [isDragging, setIsDragging] = useState(false);
+  const [isProcessingFiles, setIsProcessingFiles] = useState(false);
 
   // Verileri yükle
   const loadData = useCallback(async () => {
@@ -154,6 +157,46 @@ export default function App() {
     await loadData();
   };
 
+  const handleDragOver = (e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    if (e.dataTransfer.types.includes('Files') && !selectedBook) {
+      setIsDragging(true);
+    }
+  };
+
+  const handleDragLeave = (e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDragging(false);
+  };
+
+  const handleDrop = async (e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDragging(false);
+
+    if (!window.api || selectedBook) return;
+
+    const files = Array.from(e.dataTransfer.files);
+    const pdfPaths = files
+      .map(file => (file as any).path)
+      .filter(path => path && path.toLowerCase().endsWith('.pdf'));
+
+    if (pdfPaths.length > 0) {
+      setIsProcessingFiles(true);
+      try {
+        await window.api.addPdfs(pdfPaths);
+        await loadData();
+      } catch (err) {
+        console.error("PDF'ler eklenirken hata:", err);
+        alert("PDF'ler eklenirken bir hata oluştu.");
+      } finally {
+        setIsProcessingFiles(false);
+      }
+    }
+  };
+
   if (selectedBook) {
     return (
       <PdfViewer 
@@ -172,7 +215,12 @@ export default function App() {
   const isMac = navigator.userAgent.includes('Mac');
 
   return (
-    <div className="min-h-screen bg-slate-50 flex flex-col font-sans text-slate-900 h-screen overflow-hidden">
+    <div 
+      className="min-h-screen bg-slate-50 flex flex-col font-sans text-slate-900 h-screen overflow-hidden relative"
+      onDragOver={handleDragOver}
+      onDragLeave={handleDragLeave}
+      onDrop={handleDrop}
+    >
       {/* Üst Bar */}
       <header className={`bg-white border-b border-slate-200 px-6 py-3 flex items-center justify-between sticky top-0 z-10 shrink-0 ${!isMac ? 'pr-[140px]' : ''}`} style={{ WebkitAppRegion: 'drag' } as any}>
         <div className="flex items-center gap-3 w-64 shrink-0">
@@ -265,6 +313,30 @@ export default function App() {
 
       {isStatsModalOpen && (
         <StatsModal onClose={() => setIsStatsModalOpen(false)} />
+      )}
+
+      {/* Drag & Drop Overlay */}
+      {isDragging && (
+        <div className="absolute inset-0 z-50 bg-slate-900/40 backdrop-blur-sm flex items-center justify-center">
+          <div className="bg-white p-8 rounded-2xl shadow-2xl flex flex-col items-center pointer-events-none">
+            <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mb-4">
+              <Library className="w-8 h-8 text-blue-600" />
+            </div>
+            <h2 className="text-xl font-semibold text-slate-800">PDF'leri Buraya Bırakın</h2>
+            <p className="text-slate-500 mt-2">Kütüphanenize anında eklenecektir</p>
+          </div>
+        </div>
+      )}
+
+      {/* Processing Overlay */}
+      {isProcessingFiles && (
+        <div className="absolute inset-0 z-50 bg-slate-900/40 backdrop-blur-sm flex items-center justify-center">
+          <div className="bg-white p-8 rounded-2xl shadow-2xl flex flex-col items-center">
+            <div className="animate-spin w-12 h-12 border-4 border-blue-200 border-t-blue-600 rounded-full mb-4"></div>
+            <h2 className="text-xl font-semibold text-slate-800">PDF'ler Ekleniyor...</h2>
+            <p className="text-slate-500 mt-2">Lütfen bekleyin</p>
+          </div>
+        </div>
       )}
     </div>
   );
