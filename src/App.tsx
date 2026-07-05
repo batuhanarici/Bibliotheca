@@ -273,7 +273,7 @@ export default function App() {
             <BookList 
               books={books} 
               onBookClick={(book) => {
-                setInitialPdfPage(undefined);
+                setInitialPdfPage(book.last_page && book.last_page > 0 ? book.last_page : undefined);
                 setSelectedBook(book);
               }}
               onEditBook={handleEditBook}

@@ -76,7 +76,16 @@ export function setupIpcHandlers() {
   // Tüm kitapları getirme
   ipcMain.handle('db:getAllBooks', async () => {
     const stmt = db.prepare('SELECT * FROM books ORDER BY added_at DESC');
-    return stmt.all() as Book[];
+    const books = stmt.all() as Book[];
+    for (const book of books) {
+      try {
+        const stats = fs.statSync(book.file_path);
+        book.file_size = stats.size;
+      } catch (e) {
+        book.file_size = 0;
+      }
+    }
+    return books;
   });
 
   // Bir kitabın dosya yolunu getirme
@@ -288,7 +297,16 @@ export function setupIpcHandlers() {
 
   ipcMain.handle('db:getBookById', async (_, bookId: number) => {
     const stmt = db.prepare('SELECT * FROM books WHERE id = ?');
-    return stmt.get(bookId) as Book | undefined;
+    const book = stmt.get(bookId) as Book | undefined;
+    if (book) {
+      try {
+        const stats = fs.statSync(book.file_path);
+        book.file_size = stats.size;
+      } catch (e) {
+        book.file_size = 0;
+      }
+    }
+    return book;
   });
 
   // Phase 4: Yer İmleri (Bookmarks)

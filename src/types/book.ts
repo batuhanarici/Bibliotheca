@@ -9,6 +9,7 @@ export interface Book {
   author: string | null;
   cover_image: string | null;
   is_indexed: number;
+  file_size?: number;
 }
 
 export interface Shelf {

@@ -40,6 +40,11 @@ export function PdfViewer({ bookId, title, initialPage, onBack }: PdfViewerProps
   // Ref for the pdf doc to prevent memory leaks in cleanup
   const pdfDocRef = useRef<pdfjsLib.PDFDocumentProxy | null>(null);
 
+  const currentPageRef = useRef(currentPage);
+  useEffect(() => {
+    currentPageRef.current = currentPage;
+  }, [currentPage]);
+
   // Debounce saving last page
   const saveTimeoutRef = useRef<number | null>(null);
 
@@ -227,6 +232,9 @@ export function PdfViewer({ bookId, title, initialPage, onBack }: PdfViewerProps
       }
       if (saveTimeoutRef.current !== null) {
         window.clearTimeout(saveTimeoutRef.current);
+      }
+      if (window.api && currentPageRef.current > 0) {
+        window.api.updateLastPage(bookId, currentPageRef.current).catch(console.error);
       }
     };
   }, [bookId]);

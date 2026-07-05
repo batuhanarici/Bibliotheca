@@ -18,10 +18,20 @@ export function BookCard({ book, onClick, onEdit, onToggleFavorite }: BookCardPr
     day: 'numeric'
   });
 
+  const formatSize = (bytes?: number) => {
+    if (!bytes) return null;
+    if (bytes < 1024 * 1024) {
+      return `${(bytes / 1024).toFixed(0)} KB`;
+    }
+    return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
+  };
+
+  const sizeLabel = formatSize(book.file_size);
+
   return (
     <div 
       onClick={() => onClick(book)}
-      className="group relative flex flex-col bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden hover:shadow-md transition-shadow duration-200 cursor-pointer"
+      className="group relative flex flex-col bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden hover:shadow-lg hover:-translate-y-1 transition-all duration-300 cursor-pointer"
     >
       {/* Kapak Görseli Alanı */}
       {book.cover_image ? (
@@ -29,13 +39,13 @@ export function BookCard({ book, onClick, onEdit, onToggleFavorite }: BookCardPr
           <img src={toFileUrl(book.cover_image)} alt={book.title} className="w-full h-full object-cover" />
         </div>
       ) : (
-        <div className="bg-slate-100 aspect-[3/4] flex items-center justify-center border-b border-slate-100 group-hover:bg-slate-50 transition-colors">
+        <div className="bg-slate-100 aspect-[3/4] flex items-center justify-center border-b border-slate-100 group-hover:bg-slate-50 transition-colors relative">
           <BookIcon className="w-12 h-12 text-slate-300" />
         </div>
       )}
       
       {/* Overlay Actions */}
-      <div className="absolute top-2 right-2 flex flex-col gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+      <div className="absolute top-2 right-2 flex flex-col gap-1 opacity-0 group-hover:opacity-100 transition-opacity z-10">
         <button
           onClick={(e) => {
             e.stopPropagation();
@@ -57,6 +67,12 @@ export function BookCard({ book, onClick, onEdit, onToggleFavorite }: BookCardPr
           <Edit2 className="w-4 h-4" />
         </button>
       </div>
+
+      {sizeLabel && (
+        <div className="absolute top-2 left-2 px-1.5 py-0.5 rounded-md bg-slate-900/60 backdrop-blur-sm text-[10px] font-medium text-white shadow-sm z-10">
+          {sizeLabel}
+        </div>
+      )}
 
       {/* Kitap Bilgileri */}
       <div className="p-3 flex flex-col flex-1">
