@@ -28,6 +28,22 @@ const api = {
   getFavoriteBooks: (): Promise<Book[]> => ipcRenderer.invoke('db:getFavoriteBooks'),
   searchBooks: (query: string): Promise<Book[]> => ipcRenderer.invoke('db:searchBooks', query),
   getAllCategories: (): Promise<string[]> => ipcRenderer.invoke('db:getAllCategories'),
+
+  // Phase 4
+  saveCoverImage: (bookId: number, base64Data: string): Promise<string> => ipcRenderer.invoke('fs:saveCoverImage', bookId, base64Data),
+  saveBookText: (bookId: number, pagesText: { pageNumber: number; content: string }[]): Promise<void> => ipcRenderer.invoke('db:saveBookText', bookId, pagesText),
+  fullTextSearch: (query: string): Promise<any[]> => ipcRenderer.invoke('db:fullTextSearch', query),
+  
+  addBookmark: (bookId: number, pageNumber: number, label?: string): Promise<any> => ipcRenderer.invoke('db:addBookmark', bookId, pageNumber, label),
+  getBookmarks: (bookId: number): Promise<any[]> => ipcRenderer.invoke('db:getBookmarks', bookId),
+  deleteBookmark: (bookmarkId: number): Promise<void> => ipcRenderer.invoke('db:deleteBookmark', bookmarkId),
+  
+  addNote: (bookId: number, pageNumber: number, content: string): Promise<any> => ipcRenderer.invoke('db:addNote', bookId, pageNumber, content),
+  getNotes: (bookId: number): Promise<any[]> => ipcRenderer.invoke('db:getNotes', bookId),
+  updateNote: (noteId: number, content: string): Promise<void> => ipcRenderer.invoke('db:updateNote', noteId, content),
+  deleteNote: (noteId: number): Promise<void> => ipcRenderer.invoke('db:deleteNote', noteId),
+  
+  getLibraryStats: (): Promise<any> => ipcRenderer.invoke('db:getLibraryStats'),
 };
 
 contextBridge.exposeInMainWorld('api', api);

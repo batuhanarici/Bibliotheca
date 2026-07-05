@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Library, Star, Folder, Hash, Plus, X } from 'lucide-react';
+import { Library, Star, Folder, Hash, Plus, X, Search, BarChart2 } from 'lucide-react';
 import { Shelf } from '../types/book';
 
 export type FilterType = 'all' | 'favorites' | { type: 'shelf', id: number } | { type: 'category', name: string };
@@ -11,9 +11,11 @@ interface SidebarProps {
   onSelectFilter: (filter: FilterType) => void;
   onCreateShelf: (name: string) => Promise<void>;
   onDeleteShelf: (id: number) => Promise<void>;
+  onOpenStats: () => void;
+  onOpenFts: () => void;
 }
 
-export function Sidebar({ shelves, categories, activeFilter, onSelectFilter, onCreateShelf, onDeleteShelf }: SidebarProps) {
+export function Sidebar({ shelves, categories, activeFilter, onSelectFilter, onCreateShelf, onDeleteShelf, onOpenStats, onOpenFts }: SidebarProps) {
   const [isCreatingShelf, setIsCreatingShelf] = useState(false);
   const [newShelfName, setNewShelfName] = useState('');
 
@@ -46,7 +48,7 @@ export function Sidebar({ shelves, categories, activeFilter, onSelectFilter, onC
 
   return (
     <aside className="w-64 border-r border-slate-200 bg-slate-50 flex flex-col h-full overflow-y-auto">
-      <div className="p-4 flex flex-col gap-1">
+      <div className="p-4 flex flex-col gap-1 border-b border-slate-200">
         <div className={getNavItemClass('all')} onClick={() => onSelectFilter('all')}>
           <Library className="w-4 h-4" />
           <span>Tüm Kitaplar</span>
@@ -57,7 +59,24 @@ export function Sidebar({ shelves, categories, activeFilter, onSelectFilter, onC
         </div>
       </div>
 
-      <div className="px-4 py-2">
+      <div className="p-4 flex flex-col gap-1 border-b border-slate-200">
+        <div 
+          className="flex items-center gap-2 px-3 py-2 rounded-lg text-sm cursor-pointer transition-colors text-slate-600 hover:bg-slate-100 hover:text-slate-900"
+          onClick={onOpenFts}
+        >
+          <Search className="w-4 h-4" />
+          <span>İçerikte Ara</span>
+        </div>
+        <div 
+          className="flex items-center gap-2 px-3 py-2 rounded-lg text-sm cursor-pointer transition-colors text-slate-600 hover:bg-slate-100 hover:text-slate-900"
+          onClick={onOpenStats}
+        >
+          <BarChart2 className="w-4 h-4" />
+          <span>İstatistikler</span>
+        </div>
+      </div>
+
+      <div className="px-4 py-4">
         <div className="flex items-center justify-between text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2">
           <span>Raflar</span>
           <button onClick={() => setIsCreatingShelf(true)} className="hover:text-slate-900 p-1" title="Yeni Raf">

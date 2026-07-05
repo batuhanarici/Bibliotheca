@@ -9,6 +9,8 @@ import { PdfViewer } from './components/PdfViewer';
 import { Sidebar, FilterType } from './components/Sidebar';
 import { SearchBar } from './components/SearchBar';
 import { BookEditModal } from './components/BookEditModal';
+import { FullTextSearchModal } from './components/FullTextSearchModal';
+import { StatsModal } from './components/StatsModal';
 import { Book, Shelf } from './types/book';
 import { Library, FolderSearch } from 'lucide-react';
 
@@ -28,6 +30,11 @@ export default function App() {
   
   const [editingBook, setEditingBook] = useState<Book | null>(null);
   const [editingBookShelves, setEditingBookShelves] = useState<Shelf[]>([]);
+  
+  // Phase 4 states
+  const [isFtsModalOpen, setIsFtsModalOpen] = useState(false);
+  const [isStatsModalOpen, setIsStatsModalOpen] = useState(false);
+  const [initialPdfPage, setInitialPdfPage] = useState<number | undefined>(undefined);
 
   // Verileri yükle
   const loadData = useCallback(async () => {
@@ -152,8 +159,10 @@ export default function App() {
       <PdfViewer 
         bookId={selectedBook.id} 
         title={selectedBook.title} 
+        initialPage={initialPdfPage}
         onBack={async () => {
           setSelectedBook(null);
+          setInitialPdfPage(undefined);
           await loadData(); // Kitabın son sayfasını vs. yenilemek için
         }} 
       />
@@ -204,6 +213,8 @@ export default function App() {
           onSelectFilter={setActiveFilter}
           onCreateShelf={handleCreateShelf}
           onDeleteShelf={handleDeleteShelf}
+          onOpenStats={() => setIsStatsModalOpen(true)}
+          onOpenFts={() => setIsFtsModalOpen(true)}
         />
 
         {/* Kitap Grid */}
@@ -211,7 +222,10 @@ export default function App() {
           <div className="max-w-7xl mx-auto">
             <BookList 
               books={books} 
-              onBookClick={setSelectedBook} 
+              onBookClick={(book) => {
+                setInitialPdfPage(undefined);
+                setSelectedBook(book);
+              }}
               onEditBook={handleEditBook}
               onToggleFavorite={handleToggleFavorite}
             />
@@ -228,6 +242,24 @@ export default function App() {
           onClose={() => setEditingBook(null)}
           onSave={handleSaveBookMetadata}
         />
+      )}
+
+      {isFtsModalOpen && (
+        <FullTextSearchModal
+          onClose={() => setIsFtsModalOpen(false)}
+          onSelectResult={(bookId, pageNumber) => {
+            setIsFtsModalOpen(false);
+            const bookToOpen = books.find(b => b.id === bookId);
+            if (bookToOpen) {
+              setInitialPdfPage(pageNumber);
+              setSelectedBook(bookToOpen);
+            }
+          }}
+        />
+      )}
+
+      {isStatsModalOpen && (
+        <StatsModal onClose={() => setIsStatsModalOpen(false)} />
       )}
     </div>
   );

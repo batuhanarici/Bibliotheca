@@ -22,10 +22,16 @@ export function BookCard({ book, onClick, onEdit, onToggleFavorite }: BookCardPr
       onClick={() => onClick(book)}
       className="group relative flex flex-col bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden hover:shadow-md transition-shadow duration-200 cursor-pointer"
     >
-      {/* Kapak Görseli Alanı (Placeholder) */}
-      <div className="bg-slate-100 aspect-[3/4] flex items-center justify-center border-b border-slate-100 group-hover:bg-slate-50 transition-colors">
-        <BookIcon className="w-12 h-12 text-slate-300" />
-      </div>
+      {/* Kapak Görseli Alanı */}
+      {book.cover_image ? (
+        <div className="bg-slate-100 aspect-[3/4] flex items-center justify-center border-b border-slate-100 group-hover:bg-slate-50 transition-colors overflow-hidden">
+          <img src={`file://${book.cover_image}`} alt={book.title} className="w-full h-full object-cover" />
+        </div>
+      ) : (
+        <div className="bg-slate-100 aspect-[3/4] flex items-center justify-center border-b border-slate-100 group-hover:bg-slate-50 transition-colors">
+          <BookIcon className="w-12 h-12 text-slate-300" />
+        </div>
+      )}
       
       {/* Overlay Actions */}
       <div className="absolute top-2 right-2 flex flex-col gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
