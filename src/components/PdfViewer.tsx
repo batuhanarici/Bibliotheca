@@ -36,6 +36,9 @@ export function PdfViewer({ bookId, title, initialPage, onBack }: PdfViewerProps
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const renderTaskRef = useRef<pdfjsLib.RenderTask | null>(null);
   const containerRef = useRef<HTMLDivElement>(null);
+  
+  // Ref for the pdf doc to prevent memory leaks in cleanup
+  const pdfDocRef = useRef<pdfjsLib.PDFDocumentProxy | null>(null);
 
   // Debounce saving last page
   const saveTimeoutRef = useRef<number | null>(null);
@@ -170,6 +173,7 @@ export function PdfViewer({ bookId, title, initialPage, onBack }: PdfViewerProps
         
         if (!isMounted) return;
         
+        pdfDocRef.current = doc;
         setPdfDoc(doc);
         setTotalPages(doc.numPages);
         
@@ -217,8 +221,9 @@ export function PdfViewer({ bookId, title, initialPage, onBack }: PdfViewerProps
 
     return () => {
       isMounted = false;
-      if (pdfDoc) {
-        pdfDoc.destroy();
+      if (pdfDocRef.current) {
+        pdfDocRef.current.destroy();
+        pdfDocRef.current = null;
       }
       if (saveTimeoutRef.current !== null) {
         window.clearTimeout(saveTimeoutRef.current);

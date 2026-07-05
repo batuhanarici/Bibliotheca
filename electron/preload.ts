@@ -7,6 +7,7 @@ const api = {
   
   // Book Reading
   getAllBooks: (): Promise<Book[]> => ipcRenderer.invoke('db:getAllBooks'),
+  getBookById: (bookId: number): Promise<Book | undefined> => ipcRenderer.invoke('db:getBookById', bookId),
   getBookFile: (bookId: number): Promise<{ filePath: string }> => ipcRenderer.invoke('db:getBookFile', bookId),
   updateLastPage: (bookId: number, page: number): Promise<void> => ipcRenderer.invoke('db:updateLastPage', bookId, page),
   readFile: (filePath: string): Promise<Uint8Array> => ipcRenderer.invoke('fs:readFile', filePath),

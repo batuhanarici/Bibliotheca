@@ -1,7 +1,7 @@
 import { ipcMain, dialog } from 'electron';
 import fs from 'fs';
 import path from 'path';
-import db from './db';
+import db, { coversDir } from './db';
 import { Book, Shelf } from '../src/types/book';
 
 export function setupIpcHandlers() {
@@ -205,7 +205,6 @@ export function setupIpcHandlers() {
     
     // covers klasörüne import edilen coversDir kullanılamayacağı için doğrudan path hesaplayalım
     // veya db.ts'den export ettiğimiz coversDir'i içe aktaralım. Üstte db.ts import edildi zaten.
-    const { coversDir } = require('./db');
     const fileName = `cover_${bookId}_${Date.now()}.png`;
     const filePath = path.join(coversDir, fileName);
     
@@ -257,12 +256,20 @@ export function setupIpcHandlers() {
     // Güvenlik için SQLite stringi düzgün escape etmeli.
     try {
       // FTS5 query string
-      const ftsQuery = `"${query}"*`;
+      const sanitized = query.replace(/"/g, '').trim();
+      const terms = sanitized.split(/\s+/).filter(Boolean);
+      if (terms.length === 0) return [];
+      const ftsQuery = terms.map(t => `"${t}"*`).join(' ');
       return stmt.all(ftsQuery) as any[];
     } catch (e) {
       console.error("FTS Arama hatası:", e);
-      return [];
+      throw new Error("Arama işlemi sırasında bir hata oluştu. Lütfen farklı kelimeler deneyin.");
     }
+  });
+
+  ipcMain.handle('db:getBookById', async (_, bookId: number) => {
+    const stmt = db.prepare('SELECT * FROM books WHERE id = ?');
+    return stmt.get(bookId) as Book | undefined;
   });
 
   // Phase 4: Yer İmleri (Bookmarks)

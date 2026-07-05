@@ -11,23 +11,28 @@ export function FullTextSearchModal({ onClose, onSelectResult }: FullTextSearchM
   const [query, setQuery] = useState('');
   const [results, setResults] = useState<SearchResult[]>([]);
   const [isSearching, setIsSearching] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     const timer = setTimeout(async () => {
       if (query.trim().length > 2) {
         setIsSearching(true);
+        setError(null);
         try {
           if (window.api) {
             const res = await window.api.fullTextSearch(query.trim());
             setResults(res);
           }
-        } catch (e) {
+        } catch (e: any) {
           console.error(e);
+          setError(e.message || "Arama yapılamadı.");
+          setResults([]);
         } finally {
           setIsSearching(false);
         }
       } else {
         setResults([]);
+        setError(null);
       }
     }, 500);
 
@@ -67,14 +72,20 @@ export function FullTextSearchModal({ onClose, onSelectResult }: FullTextSearchM
               Aranıyor...
             </div>
           )}
+
+          {error && (
+            <div className="p-4 text-center text-sm text-red-500 bg-red-50 rounded-lg mx-2 border border-red-200">
+              {error}
+            </div>
+          )}
           
-          {!isSearching && query.trim().length > 2 && results.length === 0 && (
+          {!isSearching && !error && query.trim().length > 2 && results.length === 0 && (
             <div className="p-4 text-center text-sm text-slate-500">
               "{query}" için sonuç bulunamadı. Sadece indekslenmiş kitaplarda arama yapılır.
             </div>
           )}
 
-          {!isSearching && results.length > 0 && (
+          {!isSearching && !error && results.length > 0 && (
             <div className="flex flex-col gap-1 p-2">
               {results.map((res, i) => (
                 <div 

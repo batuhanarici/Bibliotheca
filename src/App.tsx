@@ -249,9 +249,12 @@ export default function App() {
       {isFtsModalOpen && (
         <FullTextSearchModal
           onClose={() => setIsFtsModalOpen(false)}
-          onSelectResult={(bookId, pageNumber) => {
+          onSelectResult={async (bookId, pageNumber) => {
             setIsFtsModalOpen(false);
-            const bookToOpen = books.find(b => b.id === bookId);
+            let bookToOpen = books.find(b => b.id === bookId);
+            if (!bookToOpen && window.api) {
+              bookToOpen = await window.api.getBookById(bookId);
+            }
             if (bookToOpen) {
               setInitialPdfPage(pageNumber);
               setSelectedBook(bookToOpen);
