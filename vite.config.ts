@@ -13,6 +13,13 @@ export default defineConfig(() => {
       electron([
         {
           entry: 'electron/main.ts',
+          onstart(options) {
+            if (process.env.DISABLE_HMR === 'true') {
+              console.log('Skipping Electron startup in web environment');
+              return;
+            }
+            options.startup();
+          },
         },
         {
           entry: 'electron/preload.ts',

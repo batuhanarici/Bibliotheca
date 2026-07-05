@@ -5,3 +5,8 @@ declare global {
     api: Api;
   }
 }
+
+declare module '*?url' {
+  const src: string;
+  export default src;
+}
