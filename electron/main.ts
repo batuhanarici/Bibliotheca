@@ -13,13 +13,17 @@ initDB();
 let mainWindow: BrowserWindow | null = null;
 
 function createWindow() {
+  const isMac = process.platform === 'darwin';
+
   mainWindow = new BrowserWindow({
     width: 1200,
     height: 800,
     minWidth: 800,
     minHeight: 600,
     titleBarStyle: 'hidden',
-    trafficLightPosition: { x: 16, y: 16 },
+    ...(isMac
+      ? { trafficLightPosition: { x: 16, y: 16 } }
+      : { titleBarOverlay: { color: '#ffffff', symbolColor: '#0f172a', height: 40 } }),
     webPreferences: {
       nodeIntegration: false,
       contextIsolation: true,

@@ -180,7 +180,7 @@ export function setupIpcHandlers() {
   ipcMain.handle('db:searchBooks', async (_, query: string) => {
     const stmt = db.prepare(`
       SELECT * FROM books 
-      WHERE title LIKE ? OR author LIKE ? COLLATE NOCASE 
+      WHERE title LIKE ? COLLATE NOCASE OR author LIKE ? COLLATE NOCASE 
       ORDER BY added_at DESC
     `);
     const searchString = `%${query}%`;

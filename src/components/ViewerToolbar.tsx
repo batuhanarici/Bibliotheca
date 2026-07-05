@@ -44,8 +44,10 @@ export function ViewerToolbar({
     }
   };
 
+  const isMac = navigator.userAgent.includes('Mac');
+
   return (
-    <div className="flex items-center justify-between bg-white border-b border-slate-200 px-4 py-2 print:hidden" style={{ WebkitAppRegion: 'drag' } as any}>
+    <div className={`flex items-center justify-between bg-white border-b border-slate-200 px-4 py-2 print:hidden ${!isMac ? 'pr-[140px]' : ''}`} style={{ WebkitAppRegion: 'drag' } as any}>
       <div className="flex items-center gap-4" style={{ WebkitAppRegion: 'no-drag' } as any}>
         <button
           onClick={onBack}

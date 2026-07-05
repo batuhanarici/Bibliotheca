@@ -1,6 +1,7 @@
 import React from 'react';
 import { Book as BookIcon, Star, Edit2 } from 'lucide-react';
 import { Book } from '../types/book';
+import { toFileUrl } from '../utils/path';
 
 interface BookCardProps {
   key?: number | string;
@@ -25,7 +26,7 @@ export function BookCard({ book, onClick, onEdit, onToggleFavorite }: BookCardPr
       {/* Kapak Görseli Alanı */}
       {book.cover_image ? (
         <div className="bg-slate-100 aspect-[3/4] flex items-center justify-center border-b border-slate-100 group-hover:bg-slate-50 transition-colors overflow-hidden">
-          <img src={`file://${book.cover_image}`} alt={book.title} className="w-full h-full object-cover" />
+          <img src={toFileUrl(book.cover_image)} alt={book.title} className="w-full h-full object-cover" />
         </div>
       ) : (
         <div className="bg-slate-100 aspect-[3/4] flex items-center justify-center border-b border-slate-100 group-hover:bg-slate-50 transition-colors">
