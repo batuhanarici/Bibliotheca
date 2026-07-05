@@ -1,5 +1,5 @@
 import React from 'react';
-import { ArrowLeft, ChevronLeft, ChevronRight, ZoomIn, ZoomOut } from 'lucide-react';
+import { ArrowLeft, ChevronLeft, ChevronRight, ZoomIn, ZoomOut, Printer } from 'lucide-react';
 
 interface ViewerToolbarProps {
   title: string;
@@ -12,6 +12,7 @@ interface ViewerToolbarProps {
   onPageChange: (page: number) => void;
   onZoomIn: () => void;
   onZoomOut: () => void;
+  onPrint: () => void;
 }
 
 export function ViewerToolbar({
@@ -25,6 +26,7 @@ export function ViewerToolbar({
   onPageChange,
   onZoomIn,
   onZoomOut,
+  onPrint,
 }: ViewerToolbarProps) {
   const [inputValue, setInputValue] = React.useState(currentPage.toString());
 
@@ -43,7 +45,7 @@ export function ViewerToolbar({
   };
 
   return (
-    <div className="flex items-center justify-between bg-white border-b border-slate-200 px-4 py-2" style={{ WebkitAppRegion: 'drag' } as any}>
+    <div className="flex items-center justify-between bg-white border-b border-slate-200 px-4 py-2 print:hidden" style={{ WebkitAppRegion: 'drag' } as any}>
       <div className="flex items-center gap-4" style={{ WebkitAppRegion: 'no-drag' } as any}>
         <button
           onClick={onBack}
@@ -87,6 +89,13 @@ export function ViewerToolbar({
       </div>
 
       <div className="flex items-center gap-2" style={{ WebkitAppRegion: 'no-drag' } as any}>
+        <button
+          onClick={onPrint}
+          className="p-1.5 hover:bg-slate-100 rounded-lg text-slate-600"
+          title="Yazdır / PDF Olarak Kaydet"
+        >
+          <Printer className="w-5 h-5" />
+        </button>
         <button
           onClick={onZoomOut}
           className="p-1.5 hover:bg-slate-100 rounded-lg text-slate-600"

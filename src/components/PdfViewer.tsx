@@ -305,7 +305,7 @@ export function PdfViewer({ bookId, title, initialPage, onBack }: PdfViewerProps
   // We can add a ResizeObserver if we want "fit to width" logic.
 
   return (
-    <div className="flex flex-col h-screen bg-slate-100 font-sans text-slate-900">
+    <div className="flex flex-col h-screen bg-slate-100 font-sans text-slate-900 print:bg-white print:h-auto">
       <ViewerToolbar
         title={title}
         currentPage={currentPage}
@@ -317,26 +317,27 @@ export function PdfViewer({ bookId, title, initialPage, onBack }: PdfViewerProps
         onPageChange={(p) => setCurrentPage(p)}
         onZoomIn={() => setZoomLevel(z => Math.min(3.0, z + 0.25))}
         onZoomOut={() => setZoomLevel(z => Math.max(0.5, z - 0.25))}
+        onPrint={() => window.print()}
       />
 
-      <div className="flex flex-1 overflow-hidden">
+      <div className="flex flex-1 overflow-hidden print:overflow-visible">
         <div 
           ref={containerRef}
-          className="flex-1 overflow-auto flex justify-center p-8 bg-slate-200 relative"
+          className="flex-1 overflow-auto flex justify-center p-8 bg-slate-200 relative print:p-0 print:bg-white print:block print:overflow-visible"
         >
           {loading ? (
-            <div className="flex items-center justify-center text-slate-500 h-full">
+            <div className="flex items-center justify-center text-slate-500 h-full print:hidden">
               Yükleniyor...
             </div>
           ) : error ? (
-            <div className="flex items-center justify-center text-red-500 h-full">
+            <div className="flex items-center justify-center text-red-500 h-full print:hidden">
               {error}
             </div>
           ) : (
-            <div className="relative">
+            <div className="relative print:flex print:justify-center print:w-full">
               <canvas
                 ref={canvasRef}
-                className="shadow-xl bg-white max-w-full h-auto"
+                className="shadow-xl bg-white max-w-full h-auto print:shadow-none print:w-full print:max-w-[210mm]"
                 style={{ display: 'block' }} // removes inline bottom space
               />
               {/* Note indicator on canvas area could be added here if desired */}
@@ -344,7 +345,7 @@ export function PdfViewer({ bookId, title, initialPage, onBack }: PdfViewerProps
           )}
 
           {/* Panel Toggles floating on right side */}
-          <div className="absolute top-4 right-4 flex flex-col gap-2 bg-white p-1 rounded-lg shadow-sm border border-slate-200">
+          <div className="absolute top-4 right-4 flex flex-col gap-2 bg-white p-1 rounded-lg shadow-sm border border-slate-200 print:hidden">
             <button 
               onClick={() => setActivePanel(p => p === 'outline' ? 'none' : 'outline')}
               className={`p-2 rounded ${activePanel === 'outline' ? 'bg-slate-100 text-slate-900' : 'text-slate-500 hover:bg-slate-50 hover:text-slate-900'}`}
@@ -371,7 +372,7 @@ export function PdfViewer({ bookId, title, initialPage, onBack }: PdfViewerProps
 
         {/* Right Sidebar Panels */}
         {activePanel === 'outline' && (
-          <div className="w-80 shrink-0 border-l border-slate-200 bg-white flex flex-col h-full">
+          <div className="w-80 shrink-0 border-l border-slate-200 bg-white flex flex-col h-full print:hidden">
             <div className="p-4 border-b border-slate-200">
               <h3 className="font-medium text-slate-800 flex items-center gap-2">
                 <List className="w-4 h-4" />
@@ -385,24 +386,28 @@ export function PdfViewer({ bookId, title, initialPage, onBack }: PdfViewerProps
         )}
 
         {activePanel === 'bookmarks' && (
-          <BookmarksPanel 
-            bookmarks={bookmarks}
-            currentPage={currentPage}
-            onAddBookmark={handleAddBookmark}
-            onDeleteBookmark={handleDeleteBookmark}
-            onNavigate={setCurrentPage}
-          />
+          <div className="print:hidden h-full flex">
+            <BookmarksPanel 
+              bookmarks={bookmarks}
+              currentPage={currentPage}
+              onAddBookmark={handleAddBookmark}
+              onDeleteBookmark={handleDeleteBookmark}
+              onNavigate={setCurrentPage}
+            />
+          </div>
         )}
 
         {activePanel === 'notes' && (
-          <NotesPanel 
-            notes={notes}
-            currentPage={currentPage}
-            onAddNote={handleAddNote}
-            onUpdateNote={handleUpdateNote}
-            onDeleteNote={handleDeleteNote}
-            onNavigate={setCurrentPage}
-          />
+          <div className="print:hidden h-full flex">
+            <NotesPanel 
+              notes={notes}
+              currentPage={currentPage}
+              onAddNote={handleAddNote}
+              onUpdateNote={handleUpdateNote}
+              onDeleteNote={handleDeleteNote}
+              onNavigate={setCurrentPage}
+            />
+          </div>
         )}
       </div>
     </div>
