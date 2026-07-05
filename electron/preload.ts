@@ -5,9 +5,11 @@ const api = {
   selectFolder: (): Promise<string | null> => ipcRenderer.invoke('dialog:selectFolder'),
   scanFolderForPdfs: (folderPath: string): Promise<void> => ipcRenderer.invoke('db:scanFolderForPdfs', folderPath),
   addPdfs: (filePaths: string[]): Promise<void> => ipcRenderer.invoke('db:addPdfs', filePaths),
+  checkMissingFiles: (): Promise<number[]> => ipcRenderer.invoke('db:checkMissingFiles'),
   
   // Book Reading
   getAllBooks: (): Promise<Book[]> => ipcRenderer.invoke('db:getAllBooks'),
+  deleteBook: (bookId: number): Promise<void> => ipcRenderer.invoke('db:deleteBook', bookId),
   getBookById: (bookId: number): Promise<Book | undefined> => ipcRenderer.invoke('db:getBookById', bookId),
   getBookFile: (bookId: number): Promise<{ filePath: string }> => ipcRenderer.invoke('db:getBookFile', bookId),
   updateLastPage: (bookId: number, page: number): Promise<void> => ipcRenderer.invoke('db:updateLastPage', bookId, page),

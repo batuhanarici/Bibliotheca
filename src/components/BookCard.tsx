@@ -1,5 +1,5 @@
 import React from 'react';
-import { Book as BookIcon, Star, Edit2 } from 'lucide-react';
+import { Book as BookIcon, Star, Edit2, Trash2 } from 'lucide-react';
 import { Book } from '../types/book';
 import { toFileUrl } from '../utils/path';
 
@@ -8,10 +8,11 @@ interface BookCardProps {
   book: Book;
   onClick: (book: Book) => void;
   onEdit: (book: Book) => void;
+  onDelete: (book: Book) => void;
   onToggleFavorite: (bookId: number) => void;
 }
 
-export function BookCard({ book, onClick, onEdit, onToggleFavorite }: BookCardProps) {
+export function BookCard({ book, onClick, onEdit, onDelete, onToggleFavorite }: BookCardProps) {
   const addedDate = new Date(book.added_at).toLocaleDateString('tr-TR', {
     year: 'numeric',
     month: 'short',
@@ -65,6 +66,16 @@ export function BookCard({ book, onClick, onEdit, onToggleFavorite }: BookCardPr
           title="Düzenle"
         >
           <Edit2 className="w-4 h-4" />
+        </button>
+        <button
+          onClick={(e) => {
+            e.stopPropagation();
+            onDelete(book);
+          }}
+          className="p-1.5 rounded-full bg-white shadow-sm border border-slate-200 hover:bg-red-50 text-slate-400 transition-colors hover:text-red-500"
+          title="Kütüphaneden Kaldır"
+        >
+          <Trash2 className="w-4 h-4" />
         </button>
       </div>
 

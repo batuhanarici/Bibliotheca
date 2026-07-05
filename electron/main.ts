@@ -21,6 +21,7 @@ function createWindow() {
     minWidth: 800,
     minHeight: 600,
     titleBarStyle: 'hidden',
+    icon: path.join(__dirname, '../assets/icon.png'),
     ...(isMac
       ? { trafficLightPosition: { x: 16, y: 16 } }
       : { titleBarOverlay: { color: '#ffffff', symbolColor: '#0f172a', height: 40 } }),

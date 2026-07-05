@@ -38,6 +38,7 @@ export default function App() {
 
   const [isDragging, setIsDragging] = useState(false);
   const [isProcessingFiles, setIsProcessingFiles] = useState(false);
+  const [missingBookIds, setMissingBookIds] = useState<number[]>([]);
 
   // Verileri yükle
   const loadData = useCallback(async () => {
@@ -81,6 +82,38 @@ export default function App() {
   useEffect(() => {
     loadData();
   }, [loadData]);
+
+  useEffect(() => {
+    const checkFiles = async () => {
+      if (window.api) {
+        try {
+          const missing = await window.api.checkMissingFiles();
+          setMissingBookIds(missing);
+        } catch (err) {
+          console.error("Eksik dosya kontrolü başarısız:", err);
+        }
+      }
+    };
+    checkFiles();
+  }, []);
+
+  const handleDeleteBook = async (book: Book) => {
+    if (!window.api) return;
+    const confirmed = window.confirm(`"${book.title}" kitabını kütüphaneden kaldırmak istediğinize emin misiniz? (Dosyanız bilgisayarınızda kalmaya devam edecek)`);
+    if (confirmed) {
+      await window.api.deleteBook(book.id);
+      await loadData();
+    }
+  };
+
+  const handleRemoveMissingBooks = async () => {
+    if (!window.api) return;
+    for (const id of missingBookIds) {
+      await window.api.deleteBook(id);
+    }
+    setMissingBookIds([]);
+    await loadData();
+  };
 
   const handleScanFolder = async () => {
     if (!window.api) {
@@ -253,6 +286,21 @@ export default function App() {
         </div>
       )}
 
+      {/* Eksik Dosya Uyarısı */}
+      {missingBookIds.length > 0 && (
+        <div className="bg-red-50 border-b border-red-200 p-2 flex items-center justify-between px-6 shrink-0">
+          <div className="text-red-800 text-sm">
+            <strong>Uyarı:</strong> {missingBookIds.length} kitabın orijinal dosyası bilgisayarınızda bulunamadı (silinmiş veya taşınmış olabilir).
+          </div>
+          <button 
+            onClick={handleRemoveMissingBooks}
+            className="text-xs bg-red-100 hover:bg-red-200 text-red-800 font-medium px-3 py-1.5 rounded transition-colors"
+          >
+            Kütüphaneden Kaldır
+          </button>
+        </div>
+      )}
+
       {/* Ana İçerik */}
       <div className="flex flex-1 overflow-hidden">
         {/* Sidebar */}
@@ -277,6 +325,7 @@ export default function App() {
                 setSelectedBook(book);
               }}
               onEditBook={handleEditBook}
+              onDeleteBook={handleDeleteBook}
               onToggleFavorite={handleToggleFavorite}
             />
           </div>

@@ -378,4 +378,26 @@ export function setupIpcHandlers() {
       totalNotes: (totalNotesStmt.get() as any).count || 0,
     };
   });
+
+  ipcMain.handle('db:deleteBook', async (_, bookId: number) => {
+    // Önce kapak görseli varsa diskten sil
+    const book = db.prepare('SELECT cover_image FROM books WHERE id = ?').get(bookId) as { cover_image: string | null } | undefined;
+    if (book?.cover_image && fs.existsSync(book.cover_image)) {
+      try {
+        fs.unlinkSync(book.cover_image);
+      } catch (err) {
+        console.error("Kapak silinemedi:", err);
+      }
+    }
+    // book_text FTS tablosundan temizle
+    db.prepare('DELETE FROM book_text WHERE book_id = ?').run(bookId);
+    // Diğer veriler ON DELETE CASCADE ile silinir
+    db.prepare('DELETE FROM books WHERE id = ?').run(bookId);
+  });
+
+  ipcMain.handle('db:checkMissingFiles', async () => {
+    const books = db.prepare('SELECT id, file_path FROM books').all() as { id: number; file_path: string }[];
+    const missingIds = books.filter(b => !fs.existsSync(b.file_path)).map(b => b.id);
+    return missingIds;
+  });
 }

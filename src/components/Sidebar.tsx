@@ -107,7 +107,13 @@ export function Sidebar({ shelves, categories, activeFilter, onSelectFilter, onC
                 <span className="truncate">{shelf.name}</span>
               </div>
               <button 
-                onClick={(e) => { e.stopPropagation(); onDeleteShelf(shelf.id); }}
+                onClick={(e) => { 
+                  e.stopPropagation(); 
+                  const confirmed = window.confirm(`"${shelf.name}" rafını silmek istediğinize emin misiniz? (Bu raftaki kitaplar silinmeyecek, sadece raf kaldırılacak)`);
+                  if (confirmed) {
+                    onDeleteShelf(shelf.id); 
+                  }
+                }}
                 className="opacity-0 group-hover:opacity-100 p-1 text-slate-400 hover:text-red-500 transition-opacity"
                 title="Rafı Sil"
               >

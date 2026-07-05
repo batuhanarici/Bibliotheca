@@ -7,10 +7,11 @@ interface BookListProps {
   books: Book[];
   onBookClick?: (book: Book) => void;
   onEditBook?: (book: Book) => void;
+  onDeleteBook?: (book: Book) => void;
   onToggleFavorite?: (bookId: number) => void;
 }
 
-export function BookList({ books, onBookClick, onEditBook, onToggleFavorite }: BookListProps) {
+export function BookList({ books, onBookClick, onEditBook, onDeleteBook, onToggleFavorite }: BookListProps) {
   if (books.length === 0) {
     return (
       <div className="flex flex-col items-center justify-center p-12 text-slate-400">
@@ -28,6 +29,7 @@ export function BookList({ books, onBookClick, onEditBook, onToggleFavorite }: B
           book={book} 
           onClick={(b) => onBookClick?.(b)} 
           onEdit={(b) => onEditBook?.(b)}
+          onDelete={(b) => onDeleteBook?.(b)}
           onToggleFavorite={(id) => onToggleFavorite?.(id)}
         />
       ))}
