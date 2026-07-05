@@ -1,0 +1,6 @@
+{
+  "name": "Bibliotheca",
+  "description": "Premium masaüstü PDF kütüphane ve okuyucu uygulaması (Electron + React + SQLite).",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
